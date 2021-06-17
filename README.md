@@ -1,4 +1,4 @@
-Works on CAS V6.3.3
+Works on CAS V6.4.0-RC5
 
 ## Config
 
@@ -41,7 +41,7 @@ repositories {
 
 dependencies {
     ...
-    implementation "com.github.EsupPortail:esup-otp-cas:ad586a2475"
+    implementation "com.github.EsupPortail:esup-otp-cas:ce8ccbed77"
 }
 ```
 

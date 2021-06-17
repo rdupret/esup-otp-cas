@@ -12,13 +12,13 @@ import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.TicketFactory;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
-import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
+import org.apereo.cas.trusted.config.MultifactorAuthnTrustConfiguration;
 import org.apereo.cas.web.cookie.CasCookieBuilder;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
-import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
 import org.apereo.cas.web.flow.CasWebflowExecutionPlanConfigurer;
 import org.apereo.cas.web.flow.SingleSignOnParticipationStrategy;
 import org.apereo.cas.web.flow.authentication.RankedMultifactorAuthenticationProviderSelector;
+import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.impl.CasWebflowEventResolutionConfigurationContext;
@@ -44,6 +44,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.webflow.config.FlowDefinitionRegistryBuilder;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
+import org.springframework.webflow.engine.builder.FlowBuilder;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import org.springframework.webflow.execution.Action;
 
@@ -53,7 +54,9 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration("esupotpConfiguration")
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 public class EsupOtpConfiguration {
-		
+	
+    private static final int WEBFLOW_CONFIGURER_ORDER = 100;
+    		
 	@Autowired
 	private CasConfigurationProperties casProperties;
 
@@ -72,12 +75,12 @@ public class EsupOtpConfiguration {
 	@Qualifier("loginFlowRegistry")
 	private FlowDefinitionRegistry loginFlowDefinitionRegistry;
 
-	@Autowired
-	private FlowBuilderServices flowBuilderServices;
+    @Autowired
+    private ObjectProvider<FlowBuilderServices> flowBuilderServices;
 
-	@Autowired
-	@Qualifier("builder")
-	private FlowBuilderServices builder;
+    @Autowired
+    @Qualifier("flowBuilder")
+    private ObjectProvider<FlowBuilder> flowBuilder;
 
 	@Autowired
 	@Qualifier("centralAuthenticationService")
@@ -138,9 +141,8 @@ public class EsupOtpConfiguration {
 	@RefreshScope
 	@Bean
 	public FlowDefinitionRegistry esupotpFlowRegistry() {
-		final FlowDefinitionRegistryBuilder builder = new FlowDefinitionRegistryBuilder(this.applicationContext, this.builder);
-		builder.setBasePath("classpath*:/webflow");
-		builder.addFlowLocationPattern("/mfa-esupotp/*-webflow.xml");
+		final FlowDefinitionRegistryBuilder builder = new FlowDefinitionRegistryBuilder(this.applicationContext, flowBuilderServices.getObject());
+		builder.addFlowBuilder(flowBuilder.getObject(), EsupOtpMultifactorWebflowConfigurer.MFA_ESUPOTP_EVENT_ID);
 		return builder.build();
 	}
 
@@ -184,38 +186,43 @@ public class EsupOtpConfiguration {
     @Bean
     @DependsOn("defaultWebflowConfigurer")
     public CasWebflowConfigurer esupotpMultifactorWebflowConfigurer() {
-        final CasWebflowConfigurer w = new EsupOtpMultifactorWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry,
+        final AbstractCasWebflowConfigurer cfg = new EsupOtpMultifactorWebflowConfigurer(flowBuilderServices.getObject(), loginFlowDefinitionRegistry,
                 esupotpFlowRegistry(), applicationContext, casProperties, MultifactorAuthenticationWebflowUtils.getMultifactorAuthenticationWebflowCustomizers(applicationContext));
-        w.initialize();
-        return w;
+        cfg.setOrder(WEBFLOW_CONFIGURER_ORDER);
+        return cfg;
     }
     
+    @Bean
+    @ConditionalOnMissingBean(name = "esupotpCasWebflowExecutionPlanConfigurer")
+    public CasWebflowExecutionPlanConfigurer mfaSimpleCasWebflowExecutionPlanConfigurer() {
+	return plan -> plan.registerWebflowConfigurer(esupotpMultifactorWebflowConfigurer());
+    }
 
     /**                                                                                                                                                                                                            
      * multifactor trust configuration.                                                                                                                                                                 
      */
-    @ConditionalOnClass(value = MultifactorAuthenticationTrustStorage.class)
+    @ConditionalOnClass(value = MultifactorAuthnTrustConfiguration.class)
     @ConditionalOnProperty(prefix = "esupotp", name = "trustedDeviceEnabled", havingValue = "true", matchIfMissing = true)
     @Configuration("esupOtpMultifactorTrustConfiguration")
-    public class EsupOtpMultifactorTrustConfiguration implements CasWebflowExecutionPlanConfigurer {
+    public class EsupOtpMultifactorTrustConfiguration {
 
         @ConditionalOnMissingBean(name = "esupotpMultifactorTrustWebflowConfigurer")
         @Bean
-        @DependsOn("defaultWebflowConfigurer")
+        @DependsOn({"defaultWebflowConfigurer", "esupotpMultifactorWebflowConfigurer"})
         public CasWebflowConfigurer esupotpMultifactorTrustWebflowConfigurer() {
         	log.debug("esupotp.trustedDeviceEnabled true, esupotpMultifactorTrustWebflowConfigurer ok");
-        	final CasWebflowConfigurer w =  new EsupOtpMultifactorTrustWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry,
-                casProperties.getAuthn().getMfa().getTrusted().isDeviceRegistrationEnabled(), 
+        	final AbstractCasWebflowConfigurer w =  new EsupOtpMultifactorTrustWebflowConfigurer(flowBuilderServices.getObject(), loginFlowDefinitionRegistry, 
                 esupOtpConfigurationProperties.getIsDeviceRegistrationRequired(),
                 esupotpFlowRegistry(),
                 applicationContext, casProperties, MultifactorAuthenticationWebflowUtils.getMultifactorAuthenticationWebflowCustomizers(applicationContext));
-        	w.initialize();
+        	w.setOrder(WEBFLOW_CONFIGURER_ORDER + 1);
             return w;
         }
 
-        @Override
-        public void configureWebflowExecutionPlan(final CasWebflowExecutionPlan plan) {
-            plan.registerWebflowConfigurer(esupotpMultifactorTrustWebflowConfigurer());
+        @ConditionalOnMissingBean(name = "esupOtpMultifactorTrustWebflowExecutionPlanConfigurer")
+        @Bean
+        public CasWebflowExecutionPlanConfigurer casSimpleMultifactorTrustWebflowExecutionPlanConfigurer() {
+            return plan -> plan.registerWebflowConfigurer(esupotpMultifactorTrustWebflowConfigurer());
         }
     }
 
