@@ -35,7 +35,7 @@ esupotp.bypass.groovy.location=file:/etc/cas/config/mfaGroovyBypass.groovy
 ```
 
 /etc/cas/config/mfaGroovyBypass.groovy :
-```
+``` groovy
 import java.util.*
 
 def boolean run(final Object... args) {
@@ -52,7 +52,7 @@ def boolean run(final Object... args) {
 
     return false;
 }
-`̀ `
+```
 
 In cas/build.gradle
 
