@@ -27,6 +27,33 @@ cas.authn.mfa.globalProviderId=mfa-esupotp
 cas.messageBundle.baseNames=classpath:custom_messages,classpath:messages,classpath:esupotp_message
 ```
 
+In esupotp.properties you can also use usual Multifactor Authentication Bypass configurations described here https://apereo.github.io/cas/6.3.x/mfa/Configuring-Multifactor-Authentication-Bypass.html
+
+So for example you can setup bypass with groovy script :
+```
+esupotp.bypass.groovy.location=file:/etc/cas/config/mfaGroovyBypass.groovy
+```
+
+/etc/cas/config/mfaGroovyBypass.groovy :
+```
+import java.util.*
+
+def boolean run(final Object... args) {
+    def authentication = args[0]
+    def principal = args[1]
+    def registeredService = args[2]
+    def provider = args[3]
+    def logger = args[4]
+    def httpRequest = args[5]
+
+    if(registeredService.id == 10 && "cn=for.appli-sensible.supervisor,ou=groups,dc=univ-ville,dc=fr" in principal.attributes.memberOf) {
+      return true;
+    }
+
+    return false;
+}
+`̀ `
+
 In cas/build.gradle
 
 ``` groovy
