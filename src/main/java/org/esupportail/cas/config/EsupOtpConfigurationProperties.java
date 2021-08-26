@@ -1,5 +1,8 @@
 package org.esupportail.cas.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apereo.cas.configuration.model.support.mfa.BaseMultifactorAuthenticationProviderProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,8 @@ public class EsupOtpConfigurationProperties extends BaseMultifactorAuthenticatio
 	
 	Boolean byPassIfNoEsupOtpMethodIsActive = true;
 	
+	List<Long> byPassServicesIfNoEsupOtpMethodIsActive = new ArrayList<Long>();
+	
 	Boolean trustedDeviceEnabled = true;
 	
 	Boolean isDeviceRegistrationRequired = false;
@@ -39,7 +44,11 @@ public class EsupOtpConfigurationProperties extends BaseMultifactorAuthenticatio
 		log.info("rank : {}", this.getRank());
 		log.info("urlApi : {}", urlApi); 
 		log.info("usersSecret : {}", usersSecret); 
-		log.info("apiPassword : {}", apiPassword); 
+		log.info("apiPassword : {}", apiPassword);
+		log.info("byPassIfNoEsupOtpMethodIsActive : {}", byPassIfNoEsupOtpMethodIsActive);
+		log.info("byPassServicesIfNoEsupOtpMethodIsActive : {}", byPassServicesIfNoEsupOtpMethodIsActive);
+		log.info("trustedDeviceEnabled : {}", trustedDeviceEnabled);
+		log.info("isDeviceRegistrationRequired : {}", isDeviceRegistrationRequired);
 	}
 	
 }
