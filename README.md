@@ -1,4 +1,4 @@
-Works on CAS V6.4.0-RC5
+Works on CAS V6.4.0
 
 ## Config
 
@@ -12,9 +12,11 @@ esupotp.rank=0
 esupotp.urlApi=http://my-api.com:8081
 esupotp.usersSecret=changeit
 esupotp.apiPassword=changeit
-esupotp.byPassIfNoEsupOtpMethodIsActive=true
+esupotp.byPassIfNoEsupOtpMethodIsActive=false
 esupotp.trustedDeviceEnabled=true
 esupotp.isDeviceRegistrationRequired=false
+# 11,12,13,14,18,21 are services ids : if we configure CAS to do ESUP-OTP MFA on these services but the user does not have an esup-otp factor enabled, then we bypass esup-otp
+esupotp.byPassServicesIfNoEsupOtpMethodIsActive=11,12,13,14,18,21
 ```
 
 In cas.properties
