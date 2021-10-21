@@ -40,13 +40,7 @@ esupotp.bypass.groovy.location=file:/etc/cas/config/mfaGroovyBypass.groovy
 ``` groovy
 import java.util.*
 
-def boolean run(final Object... args) {
-    def authentication = args[0]
-    def principal = args[1]
-    def registeredService = args[2]
-    def provider = args[3]
-    def logger = args[4]
-    def httpRequest = args[5]
+def boolean run(authentication, principal, registeredService, provider, logger, httpRequest, ... other_args) {
 
     if(registeredService.id == 10 && "cn=for.appli-sensible.supervisor,ou=groups,dc=univ-ville,dc=fr" in principal.attributes.memberOf) {
       return true;
