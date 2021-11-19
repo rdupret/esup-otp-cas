@@ -92,7 +92,6 @@
                     });
                 });
                 
-                var socket;
                 var apiUrl = $("#data").data('apiurl');
                 var divNoCodeDisplay = $("#data").data('divnocodedisplay');
                 var pushAsked = $("#data").data('pushasked');
@@ -142,7 +141,7 @@
                 }
                 
                 function initializeSocket() {
-                    socket = io.connect(apiUrl, {
+                    var socket = io.connect(apiUrl, {
                         reconnect: true, 
                         path: "/sockets", 
                         query: 'uid=' + uid + '&hash=' + userHash + '&app=cas'
