@@ -15,7 +15,7 @@
             <div id="data" class="d-flex justify-content-center flex-md-row flex-column mdc-card mdc-card-content w-lg-25">
 	      <section id="content" class="login-section login-form">
 		<div class="d-flex flex-column justify-content-between m-auto">
-		  <div>
+		  <div th:if="${divNoCodeDisplay}"> <!-- divNoCodeDisplay is false when we hide the input for the code, it means there are only methods using a code => hide this block -->
 		    <div id="serviceui" class="mb-4">
 		      <div class="d-flex align-items-center p-2">
 			<img src="images/webapp.png"><div id="servicedesc" class="ml-2">
