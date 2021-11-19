@@ -12,7 +12,7 @@
 <body>
 <main role="main" class="container mt-3 mb-3">
     <div layout:fragment="content">
-            <div id="data" th:data-apiurl="${apiUrl}" th:data-userhash="${user.getHash()}" th:data-uid="${user.getUid()}" th:data-divnocodedisplay="${divNoCodeDisplay}" th:data-pushasked="${pushAsked}" class="d-flex justify-content-center flex-md-row flex-column mdc-card mdc-card-content w-lg-25">
+            <div id="data" class="d-flex justify-content-center flex-md-row flex-column mdc-card mdc-card-content w-lg-25">
 	      <section id="content" class="login-section login-form">
 		<div class="d-flex flex-column justify-content-between m-auto">
 		  <div>
@@ -65,7 +65,7 @@
                     <div id="codeRequest" th:data-url="${flowExecutionKey}" class="card-header text-center"></div>
 		  </div>
 		  </section>
-            <script type="text/javascript">
+            <script th:inline="javascript">
                 $(document).ready(function() {
                     activateWaitingFor();
                     
@@ -92,11 +92,12 @@
                     });
                 });
                 
-                var apiUrl = $("#data").data('apiurl');
-                var divNoCodeDisplay = $("#data").data('divnocodedisplay');
-                var pushAsked = $("#data").data('pushasked');
-                var uid = $('#data').data('uid');
-                var userHash = $('#data').data('userhash');
+                // (ugly) syntax explained here: https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-natural-templates
+                var apiUrl = /*[[${apiUrl}]]*/ "";
+                var divNoCodeDisplay = /*[[${divNoCodeDisplay}]]*/ false;
+                var pushAsked = /*[[${pushAsked}]]*/ false;
+                var uid = /*[[${user.getUid()}]]*/ "";
+                var userHash = /*[[${user.getHash()}]]*/ "";
                 
                 // if waitingFor method is activated, waitingForDiv will appear else TransportDiv will appear
                 function activateWaitingFor(){
