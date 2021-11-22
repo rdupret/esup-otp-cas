@@ -12,10 +12,10 @@
 <body>
 <main role="main" class="container mt-3 mb-3">
     <div layout:fragment="content">
-            <div id="data" th:data-apiurl="${apiUrl}" th:data-userhash="${user.getHash()}" th:data-uid="${user.getUid()}" th:data-divnocodedisplay="${divNoCodeDisplay}" th:data-pushasked="${pushAsked}" class="d-flex justify-content-center flex-md-row flex-column mdc-card mdc-card-content w-lg-25">
+            <div id="data" class="d-flex justify-content-center flex-md-row flex-column mdc-card mdc-card-content w-lg-25">
 	      <section id="content" class="login-section login-form">
 		<div class="d-flex flex-column justify-content-between m-auto">
-		  <div>
+		  <div th:if="${divNoCodeDisplay}"> <!-- divNoCodeDisplay is false when we hide the input for the code, it means there are only methods using a code => hide this block -->
 		    <div id="serviceui" class="mb-4">
 		      <div class="d-flex align-items-center p-2">
 			<img src="images/webapp.png"><div id="servicedesc" class="ml-2">
@@ -65,10 +65,8 @@
                     <div id="codeRequest" th:data-url="${flowExecutionKey}" class="card-header text-center"></div>
 		  </div>
 		  </section>
-            <script type="text/javascript">
-                $(document).ready(function() {
-                    activateWaitingFor();
-                    
+            <script th:src="${apiUrl} + '/js/socket.io.js'"></script>
+            <script th:inline="javascript">
                     //on load, call transport list html
                     var $outputDiv = $('#codeRequest');
                     var eventId = "callTransportView";
@@ -90,14 +88,15 @@
                             submitPushCodeRequest();
                         }
                     });
-                });
                 
-                var socket;
-                var apiUrl = $("#data").data('apiurl');
-                var divNoCodeDisplay = $("#data").data('divnocodedisplay');
-                var pushAsked = $("#data").data('pushasked');
-                var uid = $('#data').data('uid');
-                var userHash = $('#data').data('userhash');
+                // (ugly) syntax explained here: https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#javascript-natural-templates
+                var apiUrl = /*[[${apiUrl}]]*/ "";
+                var divNoCodeDisplay = /*[[${divNoCodeDisplay}]]*/ false;
+                var pushAsked = /*[[${pushAsked}]]*/ false;
+                var uid = /*[[${user.getUid()}]]*/ "";
+                var userHash = /*[[${user.getHash()}]]*/ "";
+
+                activateWaitingFor();
                 
                 // if waitingFor method is activated, waitingForDiv will appear else TransportDiv will appear
                 function activateWaitingFor(){
@@ -142,7 +141,7 @@
                 }
                 
                 function initializeSocket() {
-                    socket = io.connect(apiUrl, {
+                    var socket = io.connect(apiUrl, {
                         reconnect: true, 
                         path: "/sockets", 
                         query: 'uid=' + uid + '&hash=' + userHash + '&app=cas'
@@ -158,7 +157,6 @@
                 }
 
             </script>
-            <script th:src="${apiUrl} + '/js/socket.io.js'"></script>
     </div>
 </div>
 </main>
