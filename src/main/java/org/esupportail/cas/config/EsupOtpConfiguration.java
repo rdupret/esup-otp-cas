@@ -147,7 +147,7 @@ public class EsupOtpConfiguration {
 	}
 
 	@Bean
-	public Action esupotpAuthenticationWebflowAction(EsupOtpAuthenticationWebflowEventResolver esupotpAuthenticationWebflowEventResolver) {
+	public Action esupotpAuthenticationWebflowAction(CasWebflowEventResolver esupotpAuthenticationWebflowEventResolver) {
 		final EsupOtpAuthenticationWebflowAction esupOtpAuthenticationWebflowAction = new EsupOtpAuthenticationWebflowAction();
         esupOtpAuthenticationWebflowAction.setEsupOtpAuthenticationWebflowEventResolver(esupotpAuthenticationWebflowEventResolver);
 		return esupOtpAuthenticationWebflowAction;
@@ -159,6 +159,7 @@ public class EsupOtpConfiguration {
 		return a;
 	}
 
+    @ConditionalOnMissingBean(name = "esupotpAuthenticationWebflowEventResolver")
 	@Bean
 	public CasWebflowEventResolver esupotpAuthenticationWebflowEventResolver(final CasWebflowEventResolutionConfigurationContext casWebflowConfigurationContext) {
 		return new EsupOtpAuthenticationWebflowEventResolver(casWebflowConfigurationContext);
