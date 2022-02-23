@@ -147,10 +147,10 @@ public class EsupOtpConfiguration {
 	}
 
 	@Bean
-	public Action esupotpAuthenticationWebflowAction() {
-		final EsupOtpAuthenticationWebflowAction a = new EsupOtpAuthenticationWebflowAction();
-		a.setEsupOtpAuthenticationWebflowEventResolver(esupotpAuthenticationWebflowEventResolver());
-		return a;
+	public Action esupotpAuthenticationWebflowAction(EsupOtpAuthenticationWebflowEventResolver esupotpAuthenticationWebflowEventResolver) {
+		final EsupOtpAuthenticationWebflowAction esupOtpAuthenticationWebflowAction = new EsupOtpAuthenticationWebflowAction();
+        esupOtpAuthenticationWebflowAction.setEsupOtpAuthenticationWebflowEventResolver(esupotpAuthenticationWebflowEventResolver);
+		return esupOtpAuthenticationWebflowAction;
 	}
 
 	@Bean
@@ -160,26 +160,8 @@ public class EsupOtpConfiguration {
 	}
 
 	@Bean
-	public CasWebflowEventResolver esupotpAuthenticationWebflowEventResolver() {
-		
-		CasWebflowEventResolutionConfigurationContext context = CasWebflowEventResolutionConfigurationContext.builder()
-		            .casDelegatingWebflowEventResolver(initialAuthenticationAttemptWebflowEventResolver.getObject())
-		            .authenticationContextValidator(authenticationContextValidator.getObject())
-		            .authenticationSystemSupport(authenticationSystemSupport)
-		            .centralAuthenticationService(centralAuthenticationService)
-		            .servicesManager(servicesManager)
-		            .ticketRegistrySupport(ticketRegistrySupport)
-		            .warnCookieGenerator(warnCookieGenerator.getObject())
-		            .authenticationRequestServiceSelectionStrategies(authenticationRequestServiceSelectionStrategies.getObject())
-		            .registeredServiceAccessStrategyEnforcer(registeredServiceAccessStrategyEnforcer.getObject())
-		            .casProperties(casProperties)
-		            .singleSignOnParticipationStrategy(webflowSingleSignOnParticipationStrategy.getObject())
-		            .ticketRegistry(ticketRegistry.getObject())
-		            .applicationContext(applicationContext)
-		            .authenticationEventExecutionPlan(authenticationEventExecutionPlan.getObject())
-		            .build();
-		 
-		return new EsupOtpAuthenticationWebflowEventResolver(context);
+	public CasWebflowEventResolver esupotpAuthenticationWebflowEventResolver(final CasWebflowEventResolutionConfigurationContext casWebflowConfigurationContext) {
+		return new EsupOtpAuthenticationWebflowEventResolver(casWebflowConfigurationContext);
 	}
     
     @ConditionalOnMissingBean(name = "esupotpMultifactorWebflowConfigurer")
