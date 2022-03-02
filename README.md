@@ -1,4 +1,4 @@
-Works on CAS V6.4.0
+Works on CAS V6.5.0
 
 ## Config
 
@@ -64,11 +64,11 @@ repositories {
 
 dependencies {
     ...
-    implementation "com.github.EsupPortail:esup-otp-cas:3d829df40b"
+    implementation "com.github.EsupPortail:esup-otp-cas:ec05a06256"
 }
 ```
 
-    TIPS: Look for https://jitpack.io/#EsupPortail/esup-otp-cas and check the available version you can use - here ad586a2475 is ok with 6.3.3 but maybe it's not the last one
+    TIPS: Look for https://jitpack.io/#EsupPortail/esup-otp-cas and check the available version you can use - here ec05a06256 is ok with 6.5.0 but maybe it's not the last one
 
 In log4j2.xml
 ```
