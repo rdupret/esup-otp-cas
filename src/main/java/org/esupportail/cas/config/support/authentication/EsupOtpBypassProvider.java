@@ -61,6 +61,7 @@ public class EsupOtpBypassProvider extends BaseMultifactorAuthenticationProvider
 			log.error("Exception ...", e);
 			return false;
 		}
+		log.debug("no bypass");
 		return true;
 	}
 	
